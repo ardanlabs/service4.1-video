@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/ardanlabs/conf/v3 v3.1.5
+	github.com/dimfeld/httptreemux/v5 v5.5.0
 	go.uber.org/zap v1.24.0
 )
 
