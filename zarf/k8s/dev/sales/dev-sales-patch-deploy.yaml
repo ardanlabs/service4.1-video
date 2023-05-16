@@ -97,3 +97,6 @@ spec:
           limits:
             cpu: "1500m" # Execute instructions 150ms/200ms on my 1.5 cores.
             memory: 500Mi
+
+# 1 core 100ms = 1000m  100ms/100ms
+# 2 core 200ms = 1500m  100ms/100ms core 1, 50ms/100ms core 2
