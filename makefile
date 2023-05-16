@@ -98,6 +98,9 @@ dev-describe-sales:
 run-local:
 	go run app/services/sales-api/main.go
 
+run-local-help:
+	go run app/services/sales-api/main.go --help
+
 tidy:
 	go mod tidy
 	go mod vendor
