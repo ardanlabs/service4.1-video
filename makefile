@@ -110,6 +110,9 @@ dev-describe-sales:
 
 # ==============================================================================
 
+run-stratch:
+	go run app/tooling/scratch/main.go
+
 run-local:
 	go run app/services/sales-api/main.go | go run app/tooling/logfmt/main.go -service=$(SERVICE_NAME)
 
