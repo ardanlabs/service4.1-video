@@ -110,7 +110,7 @@ dev-describe-sales:
 
 # ==============================================================================
 
-run-stratch:
+run-scratch:
 	go run app/tooling/scratch/main.go
 
 run-local:
