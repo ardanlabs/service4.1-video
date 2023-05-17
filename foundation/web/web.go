@@ -24,10 +24,11 @@ type App struct {
 }
 
 // NewApp creates an App value that handle a set of routes for the application.
-func NewApp(shutdown chan os.Signal) *App {
+func NewApp(shutdown chan os.Signal, mw ...Middleware) *App {
 	return &App{
 		ContextMux: httptreemux.NewContextMux(),
 		shutdown:   shutdown,
+		mw:         mw,
 	}
 }
 
