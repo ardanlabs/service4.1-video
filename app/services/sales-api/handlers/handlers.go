@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/ardanlabs/service/app/services/sales-api/handlers/v1/testgrp"
-	"github.com/dimfeld/httptreemux/v5"
+	"github.com/ardanlabs/service/foundation/web"
 	"go.uber.org/zap"
 )
 
@@ -16,10 +16,10 @@ type APIMuxConfig struct {
 }
 
 // APIMux constructs a http.Handler with all application routes defined.
-func APIMux(cfg APIMuxConfig) *httptreemux.ContextMux {
-	mux := httptreemux.NewContextMux()
+func APIMux(cfg APIMuxConfig) *web.App {
+	app := web.NewApp(cfg.Shutdown)
 
-	mux.Handle(http.MethodGet, "/test", testgrp.Test)
+	app.Handle(http.MethodGet, "/test", testgrp.Test)
 
-	return mux
+	return app
 }
