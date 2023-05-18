@@ -145,3 +145,15 @@ test-endpoint-auth:
 
 test-endpoint-auth-local:
 	curl -il -H "Authorization: Bearer ${TOKEN}" localhost:3000/test/auth
+
+liveness-local:
+	curl -il http://localhost:4000/debug/liveness
+
+liveness:
+	curl -il http://$(SERVICE_NAME).$(NAMESPACE).svc.cluster.local:4000/debug/liveness
+
+readiness-local:
+	curl -il http://localhost:4000/debug/readiness
+
+readiness:
+	curl -il http://$(SERVICE_NAME).$(NAMESPACE).svc.cluster.local:4000/debug/readiness
