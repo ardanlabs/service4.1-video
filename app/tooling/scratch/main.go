@@ -128,6 +128,14 @@ func genToken() error {
 
 	// -------------------------------------------------------------------------
 
+	if err := opaPolicyEvaluationAuthor(ctx); err != nil {
+		return fmt.Errorf("OPS authorization failed: %w", err)
+	}
+
+	fmt.Println("AUTH VALIDATED BY OPA")
+
+	// -------------------------------------------------------------------------
+
 	fmt.Printf("\n%#v\n", clm)
 
 	return nil
@@ -138,7 +146,47 @@ func genToken() error {
 var (
 	//go:embed rego/authentication.rego
 	opaAuthentication string
+
+	//go:embed rego/authorization.rego
+	opaAuthorization string
 )
+
+func opaPolicyEvaluationAuthor(ctx context.Context) error {
+	const rule = "ruleAdminOnly"
+	const opaPackage string = "ardan.rego"
+
+	query := fmt.Sprintf("x = data.%s.%s", opaPackage, rule)
+
+	q, err := rego.New(
+		rego.Query(query),
+		rego.Module("policy.rego", opaAuthorization),
+	).PrepareForEval(ctx)
+	if err != nil {
+		return err
+	}
+
+	input := map[string]any{
+		"Roles":   []string{"ADMIN"},
+		"Subject": "1234567",
+		"UserID":  "1234567",
+	}
+
+	results, err := q.Eval(ctx, rego.EvalInput(input))
+	if err != nil {
+		return fmt.Errorf("query: %w", err)
+	}
+
+	if len(results) == 0 {
+		return errors.New("no results")
+	}
+
+	result, ok := results[0].Bindings["x"].(bool)
+	if !ok || !result {
+		return fmt.Errorf("bindings results[%v] ok[%v]", results, ok)
+	}
+
+	return nil
+}
 
 func opaPolicyEvaluationAuthen(ctx context.Context, pem string, tokenString string, issuer string) error {
 	const rule = "auth"
@@ -174,7 +222,7 @@ func opaPolicyEvaluationAuthen(ctx context.Context, pem string, tokenString stri
 		return fmt.Errorf("bindings results[%v] ok[%v]", results, ok)
 	}
 
-	return err
+	return nil
 }
 
 func genKey() error {
