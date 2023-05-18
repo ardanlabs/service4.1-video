@@ -56,6 +56,7 @@ func genToken() error {
 
 	method := jwt.GetSigningMethod(jwt.SigningMethodRS256.Name)
 	token := jwt.NewWithClaims(method, claims)
+	token.Header["kid"] = "54bb2165-71e1-41a6-af3e-7da4a0e1e2c1"
 
 	file, err := os.Open("zarf/keys/54bb2165-71e1-41a6-af3e-7da4a0e1e2c1.pem")
 	if err != nil {
