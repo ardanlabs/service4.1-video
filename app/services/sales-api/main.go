@@ -13,6 +13,7 @@ import (
 
 	"github.com/ardanlabs/conf/v3"
 	"github.com/ardanlabs/service/app/services/sales-api/handlers"
+	database "github.com/ardanlabs/service/business/sys/database/pgx"
 	"github.com/ardanlabs/service/business/web/auth"
 	"github.com/ardanlabs/service/business/web/v1/debug"
 	"github.com/ardanlabs/service/foundation/keystore"
@@ -62,6 +63,15 @@ func run(log *zap.SugaredLogger) error {
 			APIHost         string        `conf:"default:0.0.0.0:3000"`
 			DebugHost       string        `conf:"default:0.0.0.0:4000"`
 		}
+		DB struct {
+			User         string `conf:"default:postgres"`
+			Password     string `conf:"default:postgres,mask"`
+			Host         string `conf:"default:database-service.sales-system.svc.cluster.local"`
+			Name         string `conf:"default:postgres"`
+			MaxIdleConns int    `conf:"default:2"`
+			MaxOpenConns int    `conf:"default:0"`
+			DisableTLS   bool   `conf:"default:true"`
+		}
 		Auth struct {
 			KeysFolder string `conf:"default:zarf/keys/"`
 			ActiveKID  string `conf:"default:54bb2165-71e1-41a6-af3e-7da4a0e1e2c1"`
@@ -97,6 +107,28 @@ func run(log *zap.SugaredLogger) error {
 	log.Infow("startup", "config", out)
 
 	// -------------------------------------------------------------------------
+	// Database Support
+
+	log.Infow("startup", "status", "initializing database support", "host", cfg.DB.Host)
+
+	db, err := database.Open(database.Config{
+		User:         cfg.DB.User,
+		Password:     cfg.DB.Password,
+		Host:         cfg.DB.Host,
+		Name:         cfg.DB.Name,
+		MaxIdleConns: cfg.DB.MaxIdleConns,
+		MaxOpenConns: cfg.DB.MaxOpenConns,
+		DisableTLS:   cfg.DB.DisableTLS,
+	})
+	if err != nil {
+		return fmt.Errorf("connecting to db: %w", err)
+	}
+	defer func() {
+		log.Infow("shutdown", "status", "stopping database support", "host", cfg.DB.Host)
+		db.Close()
+	}()
+
+	// -------------------------------------------------------------------------
 	// Initialize authentication support
 
 	log.Infow("startup", "status", "initializing authentication support")
@@ -123,7 +155,7 @@ func run(log *zap.SugaredLogger) error {
 	log.Infow("startup", "status", "debug v1 router started", "host", cfg.Web.DebugHost)
 
 	go func() {
-		if err := http.ListenAndServe(cfg.Web.DebugHost, debug.Mux(build, log)); err != nil {
+		if err := http.ListenAndServe(cfg.Web.DebugHost, debug.Mux(build, log, db)); err != nil {
 			log.Errorw("shutdown", "status", "debug v1 router closed", "host", cfg.Web.DebugHost, "ERROR", err)
 		}
 	}()
@@ -140,6 +172,7 @@ func run(log *zap.SugaredLogger) error {
 		Shutdown: shutdown,
 		Log:      log,
 		Auth:     auth,
+		DB:       db,
 	})
 
 	api := http.Server{
