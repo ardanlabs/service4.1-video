@@ -177,3 +177,23 @@ query-local:
 
 query:
 	@curl -s "http://$(SERVICE_NAME).$(NAMESPACE).svc.cluster.local:3000/users?page=1&rows=2&orderBy=name,ASC"
+
+# ==============================================================================
+# Running tests within the local computer
+
+test-race:
+	CGO_ENABLED=1 go test -race -count=1 ./...
+
+test:
+	CGO_ENABLED=0 go test -count=1 ./...
+
+lint:
+	CGO_ENABLED=0 go vet ./...
+	staticcheck -checks=all ./...
+
+vuln-check:
+	govulncheck ./...
+
+test-all: test lint vuln-check
+
+test-all-race: test-race lint vuln-check
