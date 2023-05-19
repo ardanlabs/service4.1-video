@@ -173,7 +173,7 @@ migrate:
 	go run app/tooling/admin/main.go
 
 query-local:
-	@curl -s http://localhost:3000/users?page=1&rows=2
+	@curl -s "http://localhost:3000/users?page=1&rows=2&orderBy=name,ASC"
 
 query:
-	@curl -s http://$(SERVICE_NAME).$(NAMESPACE).svc.cluster.local:3000/users?page=1&rows=2
+	@curl -s "http://$(SERVICE_NAME).$(NAMESPACE).svc.cluster.local:3000/users?page=1&rows=2&orderBy=name,ASC"
