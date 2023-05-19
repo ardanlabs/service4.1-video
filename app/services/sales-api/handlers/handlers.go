@@ -5,6 +5,9 @@ import (
 	"os"
 
 	"github.com/ardanlabs/service/app/services/sales-api/handlers/v1/testgrp"
+	"github.com/ardanlabs/service/app/services/sales-api/handlers/v1/usergrp"
+	"github.com/ardanlabs/service/business/core/user"
+	"github.com/ardanlabs/service/business/core/user/stores/userdb"
 	"github.com/ardanlabs/service/business/web/auth"
 	"github.com/ardanlabs/service/business/web/v1/mid"
 	"github.com/ardanlabs/service/foundation/web"
@@ -26,6 +29,14 @@ func APIMux(cfg APIMuxConfig) *web.App {
 
 	app.Handle(http.MethodGet, "/test", testgrp.Test)
 	app.Handle(http.MethodGet, "/test/auth", testgrp.Test, mid.Authenticate(cfg.Auth), mid.Authorize(cfg.Auth, auth.RuleAdminOnly))
+
+	// -------------------------------------------------------------------------
+
+	usrCore := user.NewCore(userdb.NewStore(cfg.Log, cfg.DB))
+
+	ugh := usergrp.New(usrCore)
+
+	app.Handle(http.MethodGet, "/users", ugh.Query)
 
 	return app
 }
