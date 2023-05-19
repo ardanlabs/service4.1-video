@@ -167,4 +167,4 @@ pgcli:
 	pgcli postgresql://postgres:postgres@database-service.$(NAMESPACE).svc.cluster.local
 
 migrate:
-	app/tooling/admin/main.go
+	go run app/tooling/admin/main.go
