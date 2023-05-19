@@ -1,6 +1,6 @@
-// Package usersummary provides an example of a core business API that
+// Package summary provides an example of a core business API that
 // is based on a view.
-package usersummary
+package summary
 
 import (
 	"context"
@@ -15,6 +15,8 @@ type Storer interface {
 	Query(ctx context.Context, filter QueryFilter, orderBy order.By, pageNumber int, rowsPerPage int) ([]Summary, error)
 	Count(ctx context.Context, filter QueryFilter) (int, error)
 }
+
+// =============================================================================
 
 // Core manages the set of APIs for user access.
 type Core struct {

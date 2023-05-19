@@ -1,4 +1,4 @@
-package usersummary
+package summary
 
 import "github.com/google/uuid"
 
