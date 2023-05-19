@@ -24,6 +24,11 @@ spec:
     spec:
       terminationGracePeriodSeconds: 60
 
+      initContainers:
+      - name: init-migrate
+        image: service-image
+        command: ['./admin']
+
       containers:
       - name: sales-api
         image: service-image
